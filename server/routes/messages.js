@@ -51,6 +51,7 @@ class Messages extends Route {
       ("SELECT * FROM messages WHERE timestamp < ? AND channel = ? ORDER BY timestamp DESC LIMIT 50", [timestamp, channelId]);
     re.messages = messages.res;
     re.usernames = usernames.res;
+    re.you = result.res[0].id;
     res.send(re);
 
   }

@@ -19,6 +19,7 @@
 
     <!-- Custom styles for this template-->
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
+    <link href="css/error.css" rel="stylesheet">
 
 </head>
 
@@ -42,15 +43,19 @@
                                         <h1 class="h4 text-gray-900 mb-4">Welcome Back to Harmony!</h1>
                                         <p>Connect With Friends Anywhere</p>
                                     </div>
+                                    <div class="alert" id="error">
+                                        <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span> 
+                                        <strong id="status-message">Error</strong>
+                                    </div>
                                     <form class="user">
                                         <div class="form-group">
                                             <input type="email" class="form-control form-control-user"
-                                                id="exampleInputEmail" aria-describedby="emailHelp"
+                                                id="username-field" aria-describedby="emailHelp"
                                                 placeholder="Username">
                                         </div>
                                         <div class="form-group">
                                             <input type="password" class="form-control form-control-user"
-                                                id="exampleInputPassword" placeholder="Password">
+                                                id="password-field" placeholder="Password">
                                         </div>
                                         <div class="form-group">
                                             <div class="custom-control custom-checkbox small">
@@ -92,6 +97,8 @@
 
     <!-- Custom scripts for all pages-->
     <script src="js/sb-admin-2.min.js"></script>
+
+    <script src="js/index.js"></script>
 
 </body>
 

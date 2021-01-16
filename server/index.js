@@ -1,15 +1,20 @@
 const express = require("express");
 const fs = require("fs");
 const mysql = require("mysql");
+const cors = require("cors");
 const bodyParser = require("body-parser");
 const multer = require("multer");
 const upload = multer();
+const ws = require("ws");
+const http = require("http");
 
 class Server {
   constructor(express, config) {
     this.express = express;
     this.express.use(bodyParser.json());
     this.express.use(bodyParser.urlencoded({extended: true}));
+    this.express.use(cors());
+    this.http = http.createServer(this.express);
 
     this.routes = [];
     this.config = require(config);
@@ -45,14 +50,21 @@ class Server {
       db
     };
 
+    this.wss = {};
+    const Messenger = require("./websocket/messenger");
+    this.wss.messages = {
+      server: new ws.Server({server: this.http, port: 8080, path: "/messages"}),
+      handler: new Messenger(this)
+    }
+    this.wss.messages.server.on("connection", (ws) => {
+      this.wss.messages.handler.onConnect(ws);
+    });
+
+    this.http.listen(80);
+
   }
 }
 
 const server = new Server(express(), "./config.json");
-const port = 80;
 
 server.init();
-
-server.express.listen(port, () => {
-  console.log("Online");
-});
