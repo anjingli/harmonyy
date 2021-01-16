@@ -29,3 +29,5 @@ class Channels extends Route {
 
   }
 }
+
+module.exports = Channels;
