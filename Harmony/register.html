@@ -20,6 +20,8 @@
     <!-- Custom styles for this template-->
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
 
+    <link href="css/error.css" rel="stylesheet">
+
 </head>
 
 <body class="bg-gradient-primary">
@@ -38,28 +40,28 @@
                             </div>
                             
                             <!--Error Button--> 
-                            <div class="alert">
+                            <div class="alert" id="error">
                                 <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span> 
-                                <strong>Error</strong> Username is taken.
+                                <strong id="status-message">Error</strong>
                             </div>
 
                             <form class="user">
                                 <div class="form-group">
-                                    <input type="text" class="form-control form-control-user" id="exampleUsername"
+                                    <input type="text" class="form-control form-control-user" id="username-field"
                                         placeholder="Create Username">
                                 </div>
                                 <div class="form-group">
-                                    <input type="email" class="form-control form-control-user" id="exampleInputEmail"
+                                    <input type="email" class="form-control form-control-user" id="email-field"
                                         placeholder="Email Address">
                                 </div>
                                 <div class="form-group row">
                                     <div class="col-sm-6 mb-3 mb-sm-0">
                                         <input type="password" class="form-control form-control-user"
-                                            id="exampleInputPassword" placeholder="Password">
+                                            id="password-field" placeholder="Password">
                                     </div>
                                     <div class="col-sm-6">
                                         <input type="password" class="form-control form-control-user"
-                                            id="exampleRepeatPassword" placeholder="Repeat Password">
+                                            id="repeat-password-field" placeholder="Repeat Password">
                                     </div>
                                 </div>
                                 <!-- TODO: Redirect to login page after get request to register endpoint -->
