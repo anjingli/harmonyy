@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <title>Pictionary</title>
+
+    <!-- Custom styles -->
+    <link href="pictionary.css" type="text/css" rel="stylesheet">
+
+    <script src="//code.jquery.com/jquery-2.1.0.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.3.0/handlebars.js"></script>
+
+</head>
+
+<body>
+    <div id="main">
+        <h1>Pictionary</h1>
+        <div class="row">
+            <canvas id="canvas"></canvas>
+            <div class="users">
+                <div id="guesses"></div>
+                <div class="draw-buttons">
+                    <button value="0" class="clear" type="button">x</button>
+                    <button value="#000000" class="black" type="button"></button>
+                </div>
+            </div>
+        </div>
+        <div id="top-message">
+            <div class="draw hidden">
+                <p>The secret word is: <span class="word"></span></p>
+            </div>
+            <form id="guess" class="hidden">
+                Guess the word! <input name="guess" class="guess-input" type="text">
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>
