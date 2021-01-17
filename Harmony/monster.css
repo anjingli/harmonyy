@@ -66,3 +66,13 @@
 .card[data-color="orange"] .category {
     color: #e95e37;
 }
+
+canvas {
+    width: 600px;
+    height: 400px;
+    background-color: white;
+    display: inline-block;
+    float: left;
+    cursor: pointer;
+    outline: lavender 3px solid;
+}
