@@ -63,7 +63,16 @@ class Server {
     this.wss.messages.server.on("connection", (ws) => {
       this.wss.messages.handler.onConnect(ws);
     });
-
+    /*
+    const Draw = require("./websocket/draw");
+    this.wss.draw = {
+      server: new ws.Server({server: this.http, path: "/draw"}),
+      handler: new Draw(this)
+    }
+    this.wss.draw.server.on("connection", (ws) => {
+      this.wss.draw.handler.onConnect(ws);
+    });
+    */
     this.http.listen(443);
 
   }

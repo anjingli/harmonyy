@@ -23,6 +23,7 @@ $("#login").click(() => {
         return;
       }
       document.cookie = `token=${res.token}`;
+      document.cookie = `username=${username};`
       window.location.replace("./messages.html");
     }
   });

@@ -10824,10 +10824,9 @@ a:hover, a:focus {
 }
 
 canvas {
-    width: 600px;
+    width: 800px;
     height: 400px;
     background-color: white;
-    display: inline-block;
     float: left;
     cursor: pointer;
     outline: lavender 3px solid;

@@ -123,7 +123,8 @@ ws.addEventListener("message", (ev) => {
   const msg = JSON.parse(ev.data);
   if (msg.id) {
     you = msg.id;
-    console.log(`Authenticated ID ${you}`);
+    console.log(msg);
+    $("#user-name").html(msg.username);
     return;
   }
   if (msg.close) {
