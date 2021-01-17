@@ -1,6 +1,9 @@
 $("#template-profile").css("display", "none");
 $(".template-message").css("display", "none");
 
+const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+let focused = 0;
 const getCookie = (cname) => {
   const name = cname + "=";
   const decodedCookie = decodeURIComponent(document.cookie);
@@ -19,7 +22,30 @@ const getCookie = (cname) => {
 
 const token = getCookie("token");
 
+let res;
+const renderMessage = (msg) => {
+  const d = new Date(msg.timestamp);
+  const now = Date.now();
+  let set;
+  if (now - d < 1000 * 60 * 60 * 24) set = `${d.getHours() % 12}:${d.getMinutes() < 10 ? "0" : ""}${d.getMinutes()} ${d.getHours() > 12 ? "PM" : "AM"}`;
+  else set = `${months[d.getMonth()]} ${d.getDate()}`;
+  if (msg.author === res.you) {
+    const msgObject = $("#template-message-author").clone().css("display", "flex").removeAttr("id");
+    msgObject.find(".message-content").append(msg.msg);
+    msgObject.find(".send-date").html(set);
+    $("#message-container").append(msgObject);
+  }
+  else {
+    const msgObject = $("#template-message-other").clone().css("display", "flex").removeAttr("id");
+    msgObject.find(".message-content").append(msg.msg);
+    msgObject.find(".send-date").html(set);
+    msgObject.find(".sender-name").html(res.usernames.find((u) => u.id === msg.author).username || "Unknown");
+    $("#message-container").append(msgObject);
+  }
+}
+
 const focusChannel = (id, name) => {
+  focused = id;
   const messageContainer = $("#message-container");
   messageContainer.empty();
   const focusedPfp = $("#focused-pfp");
@@ -30,26 +56,15 @@ const focusChannel = (id, name) => {
     type: "GET",
     url: `http://159.203.14.8/messages?channel=${id}`,
     headers: {"Authorization": token},
-    success: (res) => {
-      if (res.error !== 0) {
+    success: (cd) => {
+      res = cd;
+      if (cd.error !== 0) {
         alert("Could not fetch messages.");
         return;
       }
-      for (const msg of res.messages) {
-        if (msg.author === res.you) {
-          const msgObject = $("#template-message-author").clone().css("display", "flex").removeAttr("id");
-          msgObject.find(".message-content").append(msg.msg);
-          msgObject.find(".send-date").html(msg.timestamp);
-          messageContainer.prepend(msgObject);
-        }
-        else {
-          const msgObject = $("#template-message-other").clone().css("display", "flex").removeAttr("id");
-          msgObject.find(".message-content").append(msg.msg);
-          msgObject.find(".send-date").html(msg.timestamp);
-          msgObject.find(".sender-name").html(res.usernames.find((u) => u.id === msg.author).username || "Unknown");
-          messageContainer.prepend(msgObject);
-          console.log($("#template-message-other"));
-        }
+      cd.messages.reverse();
+      for (const msg of cd.messages) {
+        renderMessage(msg);
       }
     }
   });
@@ -99,3 +114,34 @@ else {
     success: dataLoader
   });
 }
+
+let you;
+const ws = new WebSocket("ws://159.203.14.8:8080/messages");
+ws.addEventListener("open", () => ws.send(JSON.stringify({token})));
+ws.addEventListener("message", (ev) => {
+  const msg = JSON.parse(ev.data);
+  if (msg.id) {
+    you = msg.id;
+    console.log(`Authenticated ID ${you}`);
+    return;
+  }
+  if (msg.close) {
+    alert("Your session has been terminated.");
+    return;
+  }
+  if (msg.channel !== focused) return;
+  renderMessage(msg)
+  $(".chat-messages").each(function() {this.scrollTop = 9999});
+});
+
+$("#to-send").keypress((e) => {
+  if (e.which !== 13) return;
+  $("#send-message").trigger("click");
+});
+
+$("#send-message").click(() => {
+  if (focused === 0) return;
+  const text = $("#to-send").val();
+  ws.send(JSON.stringify({text, channel: focused}));
+  $("#to-send").val("").focus();
+});
