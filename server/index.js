@@ -6,7 +6,10 @@ const bodyParser = require("body-parser");
 const multer = require("multer");
 const upload = multer();
 const ws = require("ws");
-const http = require("http");
+const https = require("https");
+const cert = fs.readFileSync("./harmonyy_me.crt");
+const ca = fs.readFileSync("./harmonyy_me.ca-bundle");
+const key = fs.readFileSync("./harmonyy_me.key");
 
 class Server {
   constructor(express, config) {
@@ -15,7 +18,7 @@ class Server {
     this.express.use(bodyParser.urlencoded({extended: true}));
     this.express.use(cors());
     this.express.use(require("express").static("public"));
-    this.http = http.createServer(this.express);
+    this.http = https.createServer({cert, ca, key}, this.express);
 
     this.routes = [];
     this.config = require(config);
@@ -54,14 +57,14 @@ class Server {
     this.wss = {};
     const Messenger = require("./websocket/messenger");
     this.wss.messages = {
-      server: new ws.Server({server: this.http, port: 8080, path: "/messages"}),
+      server: new ws.Server({server: this.http, path: "/messages"}),
       handler: new Messenger(this)
     }
     this.wss.messages.server.on("connection", (ws) => {
       this.wss.messages.handler.onConnect(ws);
     });
 
-    this.http.listen(80);
+    this.http.listen(443);
 
   }
 }

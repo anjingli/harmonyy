@@ -18,7 +18,7 @@ $("#register").click(() => {
 
   $.ajax({
     type: "POST",
-    url: "http://159.203.14.8/register",
+    url: "https://harmonyy.me/register",
     data: {username, password},
     success: (res) => {
       if (res.error === 1) {

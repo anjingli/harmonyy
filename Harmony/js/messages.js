@@ -54,7 +54,7 @@ const focusChannel = (id, name) => {
   focusedName.html(name);
   $.ajax({
     type: "GET",
-    url: `http://159.203.14.8/messages?channel=${id}`,
+    url: `https://harmonyy.me/messages?channel=${id}`,
     headers: {"Authorization": token},
     success: (cd) => {
       res = cd;
@@ -110,14 +110,14 @@ if (!token) window.location.replace("./index.html");
 else {
   $.ajax({
     type: "GET",
-    url: "http://159.203.14.8/channels",
+    url: "https://harmonyy.me/channels",
     headers: {"Authorization": token},
     success: dataLoader
   });
 }
 
 let you;
-const ws = new WebSocket("ws://159.203.14.8:8080/messages");
+const ws = new WebSocket("wss://harmonyy.me:443/messages");
 ws.addEventListener("open", () => ws.send(JSON.stringify({token})));
 ws.addEventListener("message", (ev) => {
   const msg = JSON.parse(ev.data);
@@ -133,7 +133,7 @@ ws.addEventListener("message", (ev) => {
   if (msg.newChannel) {
     $.ajax({
       type: "GET",
-      url: "http://159.203.14.8/channels",
+      url: "https://harmonyy.me/channels",
       headers: {"Authorization": token},
       success: dataLoader
     });
@@ -162,7 +162,7 @@ $("#open-dm").keypress((e) => {
   const username = $("#open-dm").val();
   $.ajax({
     type: "POST",
-    url: "http://159.203.14.8:80/create",
+    url: "https://harmonyy.me/create",
     headers: {"Authorization": token},
     data: {usernames: [username]},
     success: (res) => {

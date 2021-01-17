@@ -10,7 +10,7 @@ $("#login").click(() => {
   }
   $.ajax({
     type: "GET",
-    url: `http://159.203.14.8/login?username=${username}&password=${password}`,
+    url: `https://harmonyy.me/login?username=${username}&password=${password}`,
     success: (res) => {
       if (res.error === 1) {
         error.html("Error: Invalid username or password.");
