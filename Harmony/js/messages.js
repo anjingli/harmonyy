@@ -169,4 +169,9 @@ $("#open-dm").keypress((e) => {
       if (res.error !== 0) alert(`Unable to open DM channel. Code ${res.error}`);
     }
   });
+});
+
+$("#logout-button").click(() => {
+  document.cookie = "token=\"\";expires=Thu, 01 Jan 1970 00:00:01 GMT";
+  window.location.replace("./index.html");
 })
