@@ -14,6 +14,7 @@ class Server {
     this.express.use(bodyParser.json());
     this.express.use(bodyParser.urlencoded({extended: true}));
     this.express.use(cors());
+    this.express.use(require("express").static("public"));
     this.http = http.createServer(this.express);
 
     this.routes = [];

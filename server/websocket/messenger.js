@@ -1,10 +1,12 @@
 const Handler = require("../structs/Handler");
+const s = JSON.stringify;
 
 class Client {
-  constructor(ws) {
+  constructor(ws, id) {
     this.ws = ws;
     // 0 = awaiting, 1 = authenticated
     this.state = 0;
+    this.user = id;
   }
 }
 
@@ -16,8 +18,9 @@ class Messenger extends Handler {
   }
 
   onConnect(ws) {
-    this.clients.set(id, new Client(ws));
-    ws.on("message", (msg) => this.onMessage(msg, id++));
+    const c = new Client(ws, id);
+    this.clients.set(id--, c);
+    ws.on("message", (msg) => this.onMessage(msg, c.user));
   }
 
   async onMessage(message, id) {
@@ -29,60 +32,62 @@ class Messenger extends Handler {
       // 4 = invalid channel, 5 = no text, 6 = text too long
       if (client.state === 0) {
         if (!msg.token) {
-          client.ws.send({error: 1});
+          client.ws.send(s({error: 1}));
           client.ws.close();
           this.clients.delete(id);
           return;
         }
         const ret = await this.server.db.query("SELECT id FROM credentials WHERE token = ?", [msg.token]);
         if (ret.res.length === 0) {
-          client.ws.send({error: 2});
+          client.ws.send(s({error: 2}));
           client.ws.close();
           this.clients.delete(id);
           return;
         }
+        const old = client.user;
         client.user = ret.res[0].id;
-        client.ws.send({error: 0, id: client.user});
+        if (this.clients.has(client.user)) {
+          this.clients.get(client.user).ws.send(s({close: true}));
+          this.clients.get(client.user).ws.close();
+        }
+        client.ws.send(s({error: 0, id: client.user}));
         client.state = 1;
         const channels = await this.server.db.query("SELECT id FROM channels WHERE user = ?", [client.user]);
         client.channels = channels.res;
-        this.clients.delete(id);
+        this.clients.delete(old);
         this.clients.set(client.user, client);
         return;
       }
       // Assume state = 1
       if (!msg.channel) {
-        client.ws.send({error: 3});
+        client.ws.send(s({error: 3}));
         return;
       }
-
-      const ch = client.channels.find((c) => c === msg.channel);
+      const ch = client.channels.find((c) => c.id === msg.channel);
       if (!ch) {
-        client.ws.send({error: 4});
+        client.ws.send(s({error: 4}));
         return;
       }
-
       const text = msg.text;
       if (!text) {
-        client.ws.send({error: 5});
+        client.ws.send(s({error: 5}));
         return;
       }
-
       if (text.length > 1000) {
-        client.ws.send({error: 6});
+        client.ws.send(s({error: 6}));
         return;
       }
 
-      const members = await this.server.db.query("SELECT user FROM channels WHERE id = ?", [ch]);
+      const members = await this.server.db.query("SELECT user FROM channels WHERE id = ?", [ch.id]);
       const now = Date.now();
       for (const member of members.res) {
         if (this.clients.has(member.user)) {
           const recipient = this.clients.get(member.user);
-          recipient.ws.send({msg: text, from: client.user, timestamp: now});
+          recipient.ws.send(s({msg: text, author: client.user, timestamp: now, channel: ch.id}));
         }
       }
 
-      await this.server.db.query("INSERT INTO messages (channel, msg, author, timestamp) VALUES (?, ?, ?, ?)", [ch, text, client.user, now]);
+      await this.server.db.query("INSERT INTO messages (channel, msg, author, timestamp) VALUES (?, ?, ?, ?)", [ch.id, text, client.user, now]);
 
     }
     catch(e) {
