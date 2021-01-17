@@ -17,6 +17,16 @@ class Messenger extends Handler {
     this.clients = new Map();
   }
 
+  newChannel(targets, cid) {
+    for (const tid of targets) {
+      if (this.clients.has(tid)) {
+        const c = this.clients.get(tid);
+        c.ws.send(s({newChannel: true}));
+        c.channels.push({id: cid});
+      }
+    }
+  }
+
   onConnect(ws) {
     const c = new Client(ws, id);
     this.clients.set(id--, c);

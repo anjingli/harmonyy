@@ -95,8 +95,9 @@ const focusChannel = (id, name) => {
 
 const dataLoader = (res) => {
   const container = $("#channel-container");
+  $(".supp-channel").remove();
   for (const ch of res.channels) {
-    const channel = $("#template-profile").clone().css("display", "block").removeAttr("id");
+    const channel = $("#template-profile").clone().css("display", "block").removeAttr("id").addClass("supp-channel");
     container.after(channel);
     channel.find(".name-field").html(ch.name);
     channel.find("img").attr("src", "https://cdn.boop.pl/uploads/2020/07/4631.jpg");
@@ -129,6 +130,14 @@ ws.addEventListener("message", (ev) => {
     alert("Your session has been terminated.");
     return;
   }
+  if (msg.newChannel) {
+    $.ajax({
+      type: "GET",
+      url: "http://159.203.14.8/channels",
+      headers: {"Authorization": token},
+      success: dataLoader
+    });
+  }
   if (msg.channel !== focused) return;
   renderMessage(msg)
   $(".chat-messages").each(function() {this.scrollTop = 9999});
@@ -142,6 +151,22 @@ $("#to-send").keypress((e) => {
 $("#send-message").click(() => {
   if (focused === 0) return;
   const text = $("#to-send").val();
+  console.log(JSON.stringify({text, channel: focused}));
   ws.send(JSON.stringify({text, channel: focused}));
   $("#to-send").val("").focus();
 });
+
+$("#open-dm").keypress((e) => {
+  console.log("yes");
+  if (e.which !== 13) return;
+  const username = $("#open-dm").val();
+  $.ajax({
+    type: "POST",
+    url: "http://159.203.14.8:80/create",
+    headers: {"Authorization": token},
+    data: {usernames: [username]},
+    success: (res) => {
+      if (res.error !== 0) alert(`Unable to open DM channel. Code ${res.error}`);
+    }
+  });
+})
